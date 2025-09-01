@@ -2,7 +2,7 @@ import os
 import warnings
 import logging
 import streamlit as st
-import dotenv
+from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -11,7 +11,7 @@ from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
-dotenv.load_dotenv()
+load_dotenv()
 warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
