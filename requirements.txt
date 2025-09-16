@@ -4,14 +4,8 @@ streamlit>=1.25.0
 # LangChain core (latest compatible)
 langchain>=0.0.350
 
-# LangChain extensions
+# LangChain Groq extension
 langchain-groq>=0.0.8
-langchain-community>=0.0.312
-langchain-google-genai>=0.1.11
-
-# Embeddings
-gpt4all>=1.6.1
-sentence-transformers>=2.2.2
 
 # Vector store
 chromadb>=0.4.14
