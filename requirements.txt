@@ -1,26 +1,26 @@
 # Streamlit UI
-streamlit==1.25.0
+streamlit>=1.25.0
 
-# LangChain core
-langchain==0.1.148
+# LangChain core (latest compatible)
+langchain>=0.0.350
 
 # LangChain extensions
-langchain-groq==0.0.8
-langchain-community==0.0.312
-langchain-google-genai==0.1.11
+langchain-groq>=0.0.8
+langchain-community>=0.0.312
+langchain-google-genai>=0.1.11
 
 # Embeddings
-gpt4all==1.6.1
-sentence-transformers==2.2.2
+gpt4all>=1.6.1
+sentence-transformers>=2.2.2
 
 # Vector store
-chromadb==0.4.14
+chromadb>=0.4.14
 
 # PDF loader
-pypdf==3.10.1
+pypdf>=3.10.1
 
 # Environment variables
-python-dotenv==1.0.0
+python-dotenv>=1.0.0
 
 # HTTP requests
-requests==2.31.0
+requests>=2.31.0
