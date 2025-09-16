@@ -2,7 +2,7 @@ import os
 import warnings
 import logging
 import streamlit as st
-from dotenv import load_dotenv
+import dotenv
 from langchain_groq import ChatGroq
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -10,8 +10,10 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+from langchain_community.embeddings import GPT4AllEmbeddings
 
-load_dotenv()
+
+dotenv.load_dotenv()
 warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
 
@@ -28,11 +30,8 @@ uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_fil
 
 if uploaded_files:
     # Embedding model
-    embedding = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L12-v2",
-    model_kwargs={"device": "cpu"},
-    encode_kwargs={"normalize_embeddings": True}   # ✅ safe CPU encode
-)
+    embedding = GPT4AllEmbeddings(model="./ggml-model-gpt4all-j-v1.3-groovy.bin")
+
 
     # Temporary vectorstore in memory
     vectorstore = None
