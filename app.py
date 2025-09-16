@@ -31,10 +31,7 @@ uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_fil
 if uploaded_files:
     # Embedding model
    
-    embedding = GroqEmbeddings(
-        groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="embedding-3-small"
-    )
+    embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 
     # Temporary vectorstore in memory
