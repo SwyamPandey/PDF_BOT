@@ -1,20 +1,8 @@
-# Streamlit UI
 streamlit>=1.25.0
-
-# LangChain core (latest compatible)
 langchain>=0.0.350
-
-# LangChain Groq extension
-langchain-groq>=0.0.8
-
-# Vector store
+langchain-groq>=0.1.0
+langchain-community>=0.0.312
 chromadb>=0.4.14
-
-# PDF loader
 pypdf>=3.10.1
-
-# Environment variables
 python-dotenv>=1.0.0
-
-# HTTP requests
 requests>=2.31.0
