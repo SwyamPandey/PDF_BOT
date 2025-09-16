@@ -10,7 +10,7 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain_community.embeddings import GPT4AllEmbeddings
+from langchain_groq import GroqEmbeddings
 
 
 dotenv.load_dotenv()
@@ -30,7 +30,11 @@ uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_fil
 
 if uploaded_files:
     # Embedding model
-    embedding = GPT4AllEmbeddings(model="./ggml-model-gpt4all-j-v1.3-groovy.bin")
+   
+    embedding = GroqEmbeddings(
+        groq_api_key=os.getenv("GROQ_API_KEY"),
+        model_name="embedding-3-small"
+    )
 
 
     # Temporary vectorstore in memory
