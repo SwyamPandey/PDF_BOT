@@ -30,7 +30,8 @@ if uploaded_files:
     # Embedding model
     embedding = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L12-v2",
-    model_kwargs={"device": "cpu"}  # 🚀 Force CPU
+    model_kwargs={"device": "cpu"},
+    encode_kwargs={"normalize_embeddings": True}   # ✅ safe CPU encode
 )
 
     # Temporary vectorstore in memory
