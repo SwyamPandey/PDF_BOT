@@ -10,7 +10,6 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from langchain_groq import GroqEmbeddings
 
 
 dotenv.load_dotenv()
