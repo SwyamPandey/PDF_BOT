@@ -28,7 +28,7 @@ uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_fil
 
 if uploaded_files:
     # Embedding model
-   embedding = HuggingFaceEmbeddings(
+    embedding = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L12-v2",
     model_kwargs={"device": "cpu"}  # 🚀 Force CPU
 )
