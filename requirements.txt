@@ -7,3 +7,4 @@ chromadb>=0.4.14
 huggingface-hub>=0.20.3
 transformers>=4.35.0
 pypdf>=3.10.1
+sentence-transformers>=2.2.2
