@@ -10,6 +10,7 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
+# from langchain_community.embeddings import GPT4AllEmbeddings
 
 
 dotenv.load_dotenv()
@@ -29,7 +30,6 @@ uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_fil
 
 if uploaded_files:
     # Embedding model
-   
     embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 
