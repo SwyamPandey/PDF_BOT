@@ -48,13 +48,12 @@ if uploaded_files:
     texts = text_splitter.split_documents(docs)
 
     # ✅ Fix: Use in-memory Chroma client
-    client = chromadb.Client(Settings(anonymized_telemetry=False))
     vectorstore = Chroma.from_documents(
-        texts,
-        embedding,
-        client=client,
-        collection_name="pdf_collection"
-    )
+    texts,
+    embedding,
+    collection_name="pdf_collection"
+)
+
 
     # Step 2: User question
     prompt = st.chat_input("Ask something about your PDFs")
