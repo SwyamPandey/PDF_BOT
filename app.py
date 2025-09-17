@@ -10,8 +10,8 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-# from langchain_community.embeddings import GPT4AllEmbeddings
-
+from chromadb.config import Settings
+import chromadb
 
 dotenv.load_dotenv()
 warnings.filterwarnings("ignore")
@@ -32,7 +32,6 @@ if uploaded_files:
     # Embedding model
     embedding = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
-
     # Temporary vectorstore in memory
     vectorstore = None
     docs = []
@@ -48,7 +47,14 @@ if uploaded_files:
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     texts = text_splitter.split_documents(docs)
 
-    vectorstore = Chroma.from_documents(texts, embedding)
+    # ✅ Fix: Use in-memory Chroma client
+    client = chromadb.Client(Settings(anonymized_telemetry=False))
+    vectorstore = Chroma.from_documents(
+        texts,
+        embedding,
+        client=client,
+        collection_name="pdf_collection"
+    )
 
     # Step 2: User question
     prompt = st.chat_input("Ask something about your PDFs")
@@ -59,7 +65,7 @@ if uploaded_files:
 
         model = "llama-3.1-8b-instant"
         groq_chat = ChatGroq(
-            groq_api_key=os.getenv("GROQ_API_KEY"), 
+            groq_api_key=os.getenv("GROQ_API_KEY"),
             model_name=model
         )
 
