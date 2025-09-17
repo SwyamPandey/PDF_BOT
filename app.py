@@ -10,8 +10,8 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
-from chromadb.config import Settings
-import chromadb
+import tempfile
+import shutil
 
 dotenv.load_dotenv()
 warnings.filterwarnings("ignore")
@@ -35,42 +35,47 @@ if uploaded_files:
     # Temporary vectorstore in memory
     vectorstore = None
     docs = []
+    
+    # Create a temporary directory for PDFs
+    temp_dir = tempfile.mkdtemp()
+    
+    try:
+        for uploaded_file in uploaded_files:
+            # Save uploaded file to temp directory
+            temp_path = os.path.join(temp_dir, uploaded_file.name)
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-    for uploaded_file in uploaded_files:
-        with open(uploaded_file.name, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+            loader = PyPDFLoader(temp_path)
+            docs.extend(loader.load())
 
-        loader = PyPDFLoader(uploaded_file.name)
-        docs.extend(loader.load())
+        # Split and embed all PDFs together
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        texts = text_splitter.split_documents(docs)
 
-    # Split and embed all PDFs together
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    texts = text_splitter.split_documents(docs)
-
-    # ✅ Fix: Use in-memory Chroma client
-    vectorstore = Chroma.from_documents(
-    texts,
-    embedding,
-    collection_name="pdf_collection"
-)
-
-
-    # Step 2: User question
-    prompt = st.chat_input("Ask something about your PDFs")
-
-    if prompt:
-        st.chat_message("user").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
-
-        model = "llama-3.1-8b-instant"
-        groq_chat = ChatGroq(
-            groq_api_key=os.getenv("GROQ_API_KEY"),
-            model_name=model
+        # Create in-memory Chroma vectorstore without persistence
+        vectorstore = Chroma.from_documents(
+            texts,
+            embedding,
+            collection_name="pdf_collection"
         )
 
-        # Custom strict prompt
-        custom_prompt = PromptTemplate(
-            template="""You are a helpful assistant.
+        # Step 2: User question
+        prompt = st.chat_input("Ask something about your PDFs")
+
+        if prompt:
+            st.chat_message("user").markdown(prompt)
+            st.session_state.messages.append({"role": "user", "content": prompt})
+
+            model = "llama-3.1-8b-instant"
+            groq_chat = ChatGroq(
+                groq_api_key=os.getenv("GROQ_API_KEY"),
+                model_name=model
+            )
+
+            # Custom strict prompt
+            custom_prompt = PromptTemplate(
+                template="""You are a helpful assistant.
 Answer the following question strictly using the provided context.
 If the context does not contain the answer, reply with "I don't know".
 
@@ -81,30 +86,35 @@ Question:
 {question}
 
 Answer:""",
-            input_variables=["context", "question"]
-        )
+                input_variables=["context", "question"]
+            )
 
-        # RetrievalQA chain with custom prompt
-        chain = RetrievalQA.from_chain_type(
-            llm=groq_chat,
-            chain_type="stuff",
-            retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
-            chain_type_kwargs={"prompt": custom_prompt},
-            return_source_documents=True
-        )
+            # RetrievalQA chain with custom prompt
+            chain = RetrievalQA.from_chain_type(
+                llm=groq_chat,
+                chain_type="stuff",
+                retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+                chain_type_kwargs={"prompt": custom_prompt},
+                return_source_documents=True
+            )
 
-        try:
-            result = chain({"query": prompt})
-            response = result["result"]
+            try:
+                result = chain({"query": prompt})
+                response = result["result"]
 
-            st.chat_message("assistant").markdown(response)
-            st.session_state.messages.append({"role": "assistant", "content": response})
+                st.chat_message("assistant").markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
 
-            # Show sources
-            if result.get("source_documents"):
-                with st.expander("📂 Sources"):
-                    for i, doc in enumerate(result["source_documents"]):
-                        st.markdown(f"**Source {i+1}:** {doc.metadata.get('source', 'PDF')}")
-                        st.write(doc.page_content[:300] + "...")
-        except Exception as e:
-            st.error(f"Error: {str(e)}")
+                # Show sources
+                if result.get("source_documents"):
+                    with st.expander("📂 Sources"):
+                        for i, doc in enumerate(result["source_documents"]):
+                            st.markdown(f"**Source {i+1}:** {doc.metadata.get('source', 'PDF')}")
+                            st.write(doc.page_content[:300] + "...")
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+    
+    finally:
+        # Clean up temporary directory
+        if os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir)
